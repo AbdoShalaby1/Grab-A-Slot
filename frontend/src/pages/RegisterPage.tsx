@@ -10,6 +10,7 @@ export function RegisterPage() {
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [role, setRole] = useState<"user" | "admin">("user");
   const [error, setError] = useState<string | null>(null);
   const [pending, setPending] = useState(false);
 
@@ -18,8 +19,8 @@ export function RegisterPage() {
     setError(null);
     setPending(true);
     try {
-      await register(email, password, name);
-      navigate("/calendar", { replace: true });
+      await register(email, password, name, role);
+      navigate(role === "admin" ? "/admin/slots" : "/calendar", { replace: true });
     } catch (err) {
       setError(err instanceof ApiError ? err.message : "Registration failed");
     } finally {
@@ -90,6 +91,36 @@ export function RegisterPage() {
                 required
                 minLength={8}
               />
+            </div>
+
+            <div className="form-group">
+              <label htmlFor="role" className="form-label">
+                I want to
+              </label>
+              <div className="flex gap-3">
+                <label className="flex items-center gap-2 cursor-pointer flex-1">
+                  <input
+                    type="radio"
+                    name="role"
+                    value="user"
+                    checked={role === "user"}
+                    onChange={() => setRole("user")}
+                    className="w-4 h-4 cursor-pointer"
+                  />
+                  <span className="text-sm">Book appointments</span>
+                </label>
+                <label className="flex items-center gap-2 cursor-pointer flex-1">
+                  <input
+                    type="radio"
+                    name="role"
+                    value="admin"
+                    checked={role === "admin"}
+                    onChange={() => setRole("admin")}
+                    className="w-4 h-4 cursor-pointer"
+                  />
+                  <span className="text-sm">Manage appointments</span>
+                </label>
+              </div>
             </div>
 
             <button type="submit" className="btn btn-primary w-full py-3" disabled={pending}>

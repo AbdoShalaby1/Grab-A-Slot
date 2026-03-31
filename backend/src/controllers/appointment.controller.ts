@@ -2,9 +2,9 @@ import type { Request, Response } from "express";
 import * as appointmentService from "../services/appointment.service.js";
 
 export async function create(req: Request, res: Response) {
-  const { timeSlotId } = req.body as { timeSlotId: number };
+  const { timeSlotId, adminCodeId } = req.body as { timeSlotId: number; adminCodeId: number };
   const userId = req.user!.id;
-  const appointment = await appointmentService.createAppointment(userId, timeSlotId);
+  const appointment = await appointmentService.createAppointment(userId, timeSlotId, adminCodeId);
   res.status(201).json({
     appointment: {
       id: appointment.id,

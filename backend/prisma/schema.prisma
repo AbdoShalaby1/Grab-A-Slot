@@ -4,7 +4,6 @@ generator client {
 
 datasource db {
   provider = "mysql"
-  url      = env("DATABASE_URL")
 }
 
 enum Role {
@@ -21,6 +20,7 @@ model User {
   createdAt    DateTime      @default(now()) @db.Timestamp(0)
   appointments Appointment[]
   createdSlots TimeSlot[]    @relation("CreatedBy")
+  adminCode    AdminCode?    @relation("GeneratedBy")
 }
 
 model TimeSlot {
@@ -37,12 +37,26 @@ model TimeSlot {
 }
 
 model Appointment {
-  id         Int      @id @default(autoincrement())
-  userId     Int
-  timeSlotId Int      @unique
-  createdAt  DateTime @default(now()) @db.Timestamp(0)
-  user       User     @relation(fields: [userId], references: [id])
-  timeSlot   TimeSlot @relation(fields: [timeSlotId], references: [id])
+  id          Int      @id @default(autoincrement())
+  userId      Int
+  timeSlotId  Int      @unique
+  adminCodeId Int
+  createdAt   DateTime @default(now()) @db.Timestamp(0)
+  user        User     @relation(fields: [userId], references: [id])
+  timeSlot    TimeSlot @relation(fields: [timeSlotId], references: [id])
+  adminCode   AdminCode @relation(fields: [adminCodeId], references: [id])
   @@index([userId])
   @@index([createdAt])
+  @@index([adminCodeId])
+}
+
+model AdminCode {
+  id        Int      @id @default(autoincrement())
+  code      String   @unique
+  adminId   Int      @unique
+  isActive  Boolean  @default(true)
+  createdAt DateTime @default(now()) @db.Timestamp(0)
+  admin     User     @relation("GeneratedBy", fields: [adminId], references: [id])
+  appointments Appointment[]
+  @@index([code])
 }

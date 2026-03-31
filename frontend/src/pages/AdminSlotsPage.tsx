@@ -1,25 +1,37 @@
 import { type FormEvent, useCallback, useEffect, useState } from "react";
 import {
-  FaCalendarAlt,
   FaCheckCircle,
   FaCog,
   FaExclamationTriangle,
   FaPlus,
-  FaUsers,
-  FaUser,
-  FaChartBar,
-  FaCircle,
+  FaCopy,
 } from "react-icons/fa";
 import { ApiError } from "../api/client";
 import * as api from "../api/client";
 import type { TimeSlotListItem } from "../types";
 
 export function AdminSlotsPage() {
+  const [adminCode, setAdminCode] = useState<string | null>(null);
+  const [codeCopied, setCodeCopied] = useState(false);
   const [slots, setSlots] = useState<TimeSlotListItem[] | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [startAt, setStartAt] = useState("");
   const [endAt, setEndAt] = useState("");
   const [creating, setCreating] = useState(false);
+
+  useEffect(() => {
+    api.getAdminCode()
+      .then(res => setAdminCode(res.code))
+      .catch(() => {/* silently fail */});
+  }, []);
+
+  function copyCode() {
+    if (adminCode) {
+      navigator.clipboard.writeText(adminCode);
+      setCodeCopied(true);
+      setTimeout(() => setCodeCopied(false), 2000);
+    }
+  }
 
   const load = useCallback(async () => {
     setError(null);
@@ -95,6 +107,33 @@ export function AdminSlotsPage() {
         </h1>
         <p className="text-gray-400">Create, activate, and manage appointment time slots</p>
       </div>
+
+      {adminCode && (
+        <div className="card bg-gradient-to-r from-sky-500/10 to-blue-500/10 border-sky-500/30">
+          <div className="flex items-center justify-between">
+            <div>
+              <p className="text-sm text-gray-300 mb-2">Your Booking Code</p>
+              <p className="text-sm text-gray-500">Share this code with patients so they can book appointments</p>
+            </div>
+            <div className="flex items-center gap-2">
+              <code className="text-2xl font-mono font-bold text-sky-400 bg-sky-400/10 px-4 py-2 rounded-lg">
+                {adminCode}
+              </code>
+              <button
+                onClick={copyCode}
+                className="p-3 text-gray-400 hover:text-sky-400 hover:bg-sky-500/10 rounded-lg transition-colors"
+                title="Copy code"
+              >
+                {codeCopied ? (
+                  <FaCheckCircle className="text-green-400" />
+                ) : (
+                  <FaCopy size={20} />
+                )}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
       {error && (
         <div className="alert alert-error">

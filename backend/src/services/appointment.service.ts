@@ -2,7 +2,7 @@ import { Prisma } from "@prisma/client";
 import { prisma } from "../lib/prisma.js";
 import { AppError } from "../utils/AppError.js";
 
-export async function createAppointment(userId: number, timeSlotId: number) {
+export async function createAppointment(userId: number, timeSlotId: number, adminCodeId: number) {
   try {
     return await prisma.$transaction(async (tx) => {
       const slot = await tx.timeSlot.findUnique({
@@ -19,8 +19,16 @@ export async function createAppointment(userId: number, timeSlotId: number) {
         throw new AppError(409, "This time slot is already booked");
       }
 
+      // Validate admin code exists and is active
+      const adminCode = await tx.adminCode.findUnique({
+        where: { id: adminCodeId },
+      });
+      if (!adminCode || !adminCode.isActive) {
+        throw new AppError(400, "Invalid or inactive code");
+      }
+
       return tx.appointment.create({
-        data: { userId, timeSlotId },
+        data: { userId, timeSlotId, adminCodeId },
         include: {
           timeSlot: { select: { id: true, startAt: true, endAt: true } },
         },

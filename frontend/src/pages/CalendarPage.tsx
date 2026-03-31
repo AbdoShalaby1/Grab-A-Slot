@@ -1,6 +1,6 @@
 import { useCallback, useRef, useState } from "react";
 import { FaCalendar, FaLock, FaExclamationTriangle, FaSpinner } from "react-icons/fa";
-import { ApiError, bookAppointment } from "../api/client";
+import { ApiError, bookAppointment, validateAdminCode } from "../api/client";
 import { BookingCalendar, type BookingCalendarHandle } from "../components/BookingCalendar";
 import { useAuth } from "../context/AuthContext";
 import type { TimeSlotListItem } from "../types";
@@ -10,24 +10,30 @@ export function CalendarPage() {
   const calRef = useRef<BookingCalendarHandle>(null);
   const [country, setCountry] = useState("US");
   const [selected, setSelected] = useState<TimeSlotListItem | null>(null);
+  const [adminCode, setAdminCode] = useState("");
   const [bookError, setBookError] = useState<string | null>(null);
   const [booking, setBooking] = useState(false);
 
   const onSlotSelect = useCallback((slot: TimeSlotListItem) => {
     setBookError(null);
+    setAdminCode("");
     setSelected(slot);
   }, []);
 
   async function confirmBook() {
-    if (!selected || !user) return;
+    if (!selected || !user || !adminCode.trim()) return;
     setBookError(null);
     setBooking(true);
     try {
-      await bookAppointment(selected.id);
+      // Validate the admin code and get its ID
+      const codeData = await validateAdminCode(adminCode.trim());
+      // Book the appointment with the code ID
+      await bookAppointment(selected.id, codeData.id);
       setSelected(null);
+      setAdminCode("");
       calRef.current?.refetch();
     } catch (err) {
-      setBookError(err instanceof ApiError ? err.message : "Could not book");
+      setBookError(err instanceof ApiError ? err.message : err instanceof Error ? err.message : "Could not book");
     } finally {
       setBooking(false);
     }
@@ -102,6 +108,22 @@ export function CalendarPage() {
               </p>
             </div>
 
+            <div className="form-group mb-4">
+              <label htmlFor="admin-code" className="form-label">
+                Admin Code
+              </label>
+              <input
+                id="admin-code"
+                type="text"
+                className="form-control"
+                placeholder="Enter admin code"
+                value={adminCode}
+                onChange={(e) => setAdminCode(e.target.value.toUpperCase())}
+                maxLength={10}
+              />
+              <p className="text-xs text-gray-500 mt-1">Ask the admin for a code to book this slot</p>
+            </div>
+
             {!user && (
               <div className="alert alert-error mb-4 flex items-center gap-2">
                 <FaLock /> You must be signed in to book this slot
@@ -127,7 +149,7 @@ export function CalendarPage() {
                 type="button"
                 className="btn btn-primary"
                 onClick={confirmBook}
-                disabled={!user || booking}
+                disabled={!user || booking || !adminCode.trim()}
               >
                 {booking ? (
                   <>

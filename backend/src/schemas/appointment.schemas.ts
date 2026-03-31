@@ -2,6 +2,7 @@ import { z } from "zod";
 
 export const createAppointmentBodySchema = z.object({
   timeSlotId: z.coerce.number().int().positive(),
+  adminCodeId: z.coerce.number().int().positive(),
 });
 
 export const cancelAppointmentParamSchema = z.object({

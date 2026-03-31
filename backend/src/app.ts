@@ -1,6 +1,7 @@
 import cors from "cors";
 import express from "express";
 import { errorHandler } from "./middleware/errorHandler.js";
+import adminCodesRoutes from "./routes/adminCodes.routes.js";
 import adminTimeSlotsRoutes from "./routes/adminTimeSlots.routes.js";
 import appointmentsRoutes from "./routes/appointments.routes.js";
 import authRoutes from "./routes/auth.routes.js";
@@ -22,6 +23,7 @@ export function createApp() {
   app.use("/api/auth", authRoutes);
   app.use("/api/time-slots", timeSlotsRoutes);
   app.use("/api/appointments", appointmentsRoutes);
+  app.use("/api/admin/codes", adminCodesRoutes);
   app.use("/api/admin/time-slots", adminTimeSlotsRoutes);
   app.use("/api/holidays", holidaysRoutes);
 

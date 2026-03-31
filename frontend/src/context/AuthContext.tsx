@@ -20,7 +20,7 @@ type AuthState = {
 
 type AuthContextValue = AuthState & {
   login: (email: string, password: string) => Promise<void>;
-  register: (email: string, password: string, name: string) => Promise<void>;
+  register: (email: string, password: string, name: string, role?: "user" | "admin") => Promise<void>;
   logout: () => void;
 };
 
@@ -62,8 +62,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   );
 
   const register = useCallback(
-    async (email: string, password: string, name: string) => {
-      const { user: u, token: t } = await api.register(email, password, name);
+    async (email: string, password: string, name: string, role?: "user" | "admin") => {
+      const { user: u, token: t } = await api.register(email, password, name, role);
       persist(u, t);
     },
     [persist]

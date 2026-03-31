@@ -88,10 +88,10 @@ export function getHolidays(year: number, country: string) {
   );
 }
 
-export function bookAppointment(timeSlotId: number) {
+export function bookAppointment(timeSlotId: number, adminCodeId: number) {
   return api<{ appointment: { id: number; createdAt: string; timeSlot: unknown } }>(
     "/api/appointments",
-    { method: "POST", body: JSON.stringify({ timeSlotId }) }
+    { method: "POST", body: JSON.stringify({ timeSlotId, adminCodeId }) }
   );
 }
 
@@ -152,9 +152,20 @@ export function login(email: string, password: string) {
   });
 }
 
-export function register(email: string, password: string, name: string) {
+export function register(email: string, password: string, name: string, role?: "user" | "admin") {
   return api<{ user: import("../types").User; token: string }>("/api/auth/register", {
     method: "POST",
-    body: JSON.stringify({ email, password, name }),
+    body: JSON.stringify({ email, password, name, role }),
   });
+}
+
+export function validateAdminCode(code: string) {
+  return api<{ id: number; adminId: number; code: string }>("/api/admin/codes/validate", {
+    method: "POST",
+    body: JSON.stringify({ code }),
+  });
+}
+
+export function getAdminCode() {
+  return api<{ code: string }>("/api/admin/codes/my");
 }
