@@ -49,6 +49,7 @@ export const BookingCalendar = forwardRef<BookingCalendarHandle, Props>(function
   ref
 ) {
   const calRef = useRef<FullCalendar>(null);
+  const toApiDateTime = useCallback((input: string) => new Date(input).toISOString(), []);
 
   useImperativeHandle(ref, () => ({
     refetch: () => calRef.current?.getApi().refetchEvents(),
@@ -56,10 +57,12 @@ export const BookingCalendar = forwardRef<BookingCalendarHandle, Props>(function
 
   const loadEvents = useCallback(
     async (info: { startStr: string; endStr: string }): Promise<EventInput[]> => {
+      const fromIso = toApiDateTime(info.startStr);
+      const toIso = toApiDateTime(info.endStr);
       const [{ slots }, holidaysRes] = await Promise.all([
-        api.getTimeSlots({ from: info.startStr, to: info.endStr }),
+        api.getTimeSlots({ from: fromIso, to: toIso }),
         api
-          .getHolidays(new Date(info.startStr).getFullYear(), countryCode)
+          .getHolidays(new Date(fromIso).getFullYear(), countryCode)
           .catch(() => ({ holidays: [] as HolidayItem[] })),
       ]);
 
@@ -75,7 +78,7 @@ export const BookingCalendar = forwardRef<BookingCalendarHandle, Props>(function
       onEventsLoaded?.();
       return [...holidayEvents, ...slots.map(slotToEvent)];
     },
-    [countryCode, onEventsLoaded]
+    [countryCode, onEventsLoaded, toApiDateTime]
   );
 
   const handleEventClick = useCallback(
@@ -104,10 +107,13 @@ export const BookingCalendar = forwardRef<BookingCalendarHandle, Props>(function
         slotMaxTime="21:00:00"
         allDaySlot={true}
         height="auto"
-        events={(info, successCallback, failureCallback) => {
+        events={(info, successCallback) => {
           loadEvents({ startStr: info.startStr, endStr: info.endStr })
             .then(successCallback)
-            .catch(failureCallback);
+            .catch((err) => {
+              console.error("Failed to load calendar events", err);
+              successCallback([]);
+            });
         }}
         eventClick={handleEventClick}
       />

@@ -1,8 +1,8 @@
 import { type FormEvent, useState } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
+import { FaExclamationTriangle, FaSpinner } from "react-icons/fa";
 import { ApiError } from "../api/client";
 import { useAuth } from "../context/AuthContext";
-import "./Pages.css";
 
 export function LoginPage() {
   const { login } = useAuth();
@@ -30,37 +30,75 @@ export function LoginPage() {
   }
 
   return (
-    <div className="page-stack narrow">
-      <h1>Log in</h1>
-      <form className="form-card" onSubmit={onSubmit}>
-        {error && <p className="form-error">{error}</p>}
-        <label>
-          Email
-          <input
-            type="email"
-            autoComplete="email"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            required
-          />
-        </label>
-        <label>
-          Password
-          <input
-            type="password"
-            autoComplete="current-password"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            required
-          />
-        </label>
-        <button type="submit" className="btn primary" disabled={pending}>
-          {pending ? "Signing in…" : "Sign in"}
-        </button>
-        <p className="muted small">
-          No account? <Link to="/register">Register</Link>
-        </p>
-      </form>
+    <div className="flex items-center justify-center min-h-[70vh]">
+      <div className="w-full max-w-md">
+        <div className="text-center mb-8">
+          <h1 className="text-4xl font-bold mb-2">Welcome Back</h1>
+          <p className="text-gray-400">Sign in to your account to continue</p>
+        </div>
+
+        <div className="card">
+          <form onSubmit={onSubmit} className="space-y-5">
+            {error && (
+              <div className="alert alert-error flex items-center gap-2">
+                <FaExclamationTriangle /> {error}
+              </div>
+            )}
+
+            <div className="form-group">
+              <label htmlFor="email" className="form-label">
+                Email Address
+              </label>
+              <input
+                id="email"
+                type="email"
+                autoComplete="email"
+                className="form-control"
+                placeholder="you@example.com"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                required
+              />
+            </div>
+
+            <div className="form-group">
+              <label htmlFor="password" className="form-label">
+                Password
+              </label>
+              <input
+                id="password"
+                type="password"
+                autoComplete="current-password"
+                className="form-control"
+                placeholder="••••••••"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                required
+              />
+            </div>
+
+            <button type="submit" className="btn btn-primary w-full py-3" disabled={pending}>
+              {pending ? (
+                <>
+                  <FaSpinner className="inline-block animate-spin" />
+                  Signing in…
+                </>
+              ) : (
+                "Sign In"
+              )}
+            </button>
+          </form>
+
+          <div className="mt-6 pt-6 border-t border-gray-700 text-center">
+            <p className="text-gray-400 text-sm">
+              Don't have an account?{" "}
+              <Link to="/register" className="text-sky-400 hover:text-sky-300 font-semibold">
+                Create one now
+              </Link>
+            </p>
+          </div>
+        </div>
+      </div>
     </div>
   );
 }

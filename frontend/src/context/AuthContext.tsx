@@ -2,7 +2,6 @@ import {
   createContext,
   useCallback,
   useContext,
-  useEffect,
   useMemo,
   useState,
   type ReactNode,
@@ -39,17 +38,11 @@ function readStored(): { user: User | null; token: string | null } {
 }
 
 export function AuthProvider({ children }: { children: ReactNode }) {
-  const [{ user, token, loading }, setState] = useState<AuthState>(() => ({
-    user: null,
-    token: null,
-    loading: true,
-  }));
-
-  useEffect(() => {
+  const [{ user, token, loading }, setState] = useState<AuthState>(() => {
     const { token: t, user: u } = readStored();
     api.setBearerToken(t);
-    setState({ user: u, token: t, loading: false });
-  }, []);
+    return { user: u, token: t, loading: false };
+  });
 
   const persist = useCallback((u: User | null, t: string | null) => {
     api.setBearerToken(t);
@@ -95,6 +88,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 }
 
+// eslint-disable-next-line react-refresh/only-export-components
 export function useAuth() {
   const ctx = useContext(AuthContext);
   if (!ctx) throw new Error("useAuth must be used within AuthProvider");

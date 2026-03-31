@@ -1,17 +1,134 @@
+/* FullCalendar component styling */
+
 .booking-calendar-wrap {
-  --fc-border-color: var(--border);
-  --fc-page-bg-color: var(--surface);
-  --fc-neutral-bg-color: var(--bg);
+  --fc-border-color: rgb(55, 65, 81);
+  --fc-page-bg-color: rgb(31, 41, 55);
+  --fc-neutral-bg-color: rgb(17, 24, 39);
+  --fc-text-color: rgb(243, 244, 246);
+  --fc-button-bg-color: rgb(15, 23, 42);
+  --fc-button-border-color: rgb(55, 65, 81);
+  --fc-button-active-bg-color: rgb(6, 182, 212);
+  --fc-button-hover-bg-color: rgb(8, 145, 178);
 }
 
 .booking-calendar-wrap .fc {
+  font-family: inherit;
   font-size: 0.9rem;
 }
 
-.fc-holiday-bg {
+/* Button Styling */
+.booking-calendar-wrap .fc-button-primary {
+  background-color: rgb(6, 182, 212) !important;
+  border-color: rgb(6, 182, 212) !important;
+  font-weight: 600;
+}
+
+.booking-calendar-wrap .fc-button-primary:hover {
+  background-color: rgb(8, 145, 178) !important;
+  border-color: rgb(8, 145, 178) !important;
+}
+
+.booking-calendar-wrap .fc-button-primary:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* Header Styling */
+.booking-calendar-wrap .fc-col-header {
+  background-color: rgb(17, 24, 39) !important;
+  border-color: rgb(55, 65, 81) !important;
+}
+
+.booking-calendar-wrap .fc-col-header-cell {
+  color: rgb(107, 114, 128);
+  font-weight: 600;
+  font-size: 0.85rem;
+  padding: 1rem 0.5rem !important;
+}
+
+/* Cell Styling */
+.booking-calendar-wrap .fc-daygrid-day {
+  border-color: rgb(55, 65, 81) !important;
+  background-color: rgb(31, 41, 55);
+}
+
+.booking-calendar-wrap .fc-daygrid-day:hover {
+  background-color: rgba(6, 182, 212, 0.1) !important;
+}
+
+.booking-calendar-wrap .fc-daygrid-day-number {
+  color: rgb(209, 213, 219);
+  font-weight: 600;
+  padding: 0.75rem !important;
+}
+
+.booking-calendar-wrap .fc-daygrid-day.fc-day-other {
+  background-color: rgb(17, 24, 39);
+  opacity: 0.6;
+}
+
+.booking-calendar-wrap .fc-daygrid-day.fc-day-today {
+  background-color: rgba(6, 182, 212, 0.15) !important;
+}
+
+/* Time Grid Styling */
+.booking-calendar-wrap .fc-timegrid-slot {
+  border-color: rgb(55, 65, 81) !important;
+  height: 3rem;
+}
+
+.booking-calendar-wrap .fc-timegrid-slot span {
+  color: rgb(107, 114, 128);
+  font-size: 0.8rem;
+}
+
+.booking-calendar-wrap .fc-col-time-cell {
+  color: rgb(107, 114, 128);
+}
+
+/* Events */
+.booking-calendar-wrap .fc-event {
+  border: none !important;
+  border-radius: 6px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.booking-calendar-wrap .fc-event:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+}
+
+.booking-calendar-wrap .fc-event-selected {
+  box-shadow: 0 0 0 2px rgb(6, 182, 212) !important;
+}
+
+/* Holiday Background */
+.booking-calendar-wrap .fc .fc-bg-event {
+  background: rgba(239, 68, 68, 0.15) !important;
+  border: 1px solid rgba(239, 68, 68, 0.3) !important;
+}
+
+.booking-calendar-wrap .fc-holiday-bg {
   opacity: 1;
 }
 
-.booking-calendar-wrap .fc .fc-bg-event {
-  background: rgba(220, 38, 38, 0.12);
+/* Toolbar Styling */
+.booking-calendar-wrap .fc-toolbar {
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+  flex-wrap: wrap;
+}
+
+.booking-calendar-wrap .fc-toolbar-title {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: rgb(243, 244, 246);
+}
+
+/* Scrollbar */
+.booking-calendar-wrap {
+  border-radius: 12px;
+  overflow: hidden;
 }

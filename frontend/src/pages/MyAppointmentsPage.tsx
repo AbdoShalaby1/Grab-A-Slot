@@ -1,9 +1,9 @@
 import { useCallback, useEffect, useState } from "react";
 import { Link } from "react-router-dom";
+import { FaExclamationTriangle, FaSpinner, FaCalendar, FaTag, FaTrash, FaInbox, FaClipboardList } from "react-icons/fa";
 import { ApiError } from "../api/client";
 import * as api from "../api/client";
 import type { AppointmentRow } from "../types";
-import "./Pages.css";
 
 export function MyAppointmentsPage() {
   const [rows, setRows] = useState<AppointmentRow[] | null>(null);
@@ -20,22 +20,11 @@ export function MyAppointmentsPage() {
   }, []);
 
   useEffect(() => {
-    let cancelled = false;
-    (async () => {
-      try {
-        const { appointments } = await api.getMyAppointments();
-        if (!cancelled) setRows(appointments);
-      } catch (e) {
-        if (!cancelled) setError(e instanceof ApiError ? e.message : "Failed to load");
-      }
-    })();
-    return () => {
-      cancelled = true;
-    };
-  }, []);
+    void fetchAppointments();
+  }, [fetchAppointments]);
 
   async function handleCancel(appointmentId: number) {
-    if (!confirm("Are you sure you want to cancel this appointment?")) return;
+    if (!confirm("Are you sure you want to cancel this appointment? This action cannot be undone.")) return;
     setCanceling(appointmentId);
     setError(null);
     try {
@@ -49,61 +38,130 @@ export function MyAppointmentsPage() {
   }
 
   if (error) {
-    return <p className="form-error">{error}</p>;
+    return (
+      <div className="space-y-4">
+        <h1 className="text-4xl font-bold flex items-center gap-2">
+          <FaClipboardList /> My Appointments
+        </h1>
+        <div className="alert alert-error flex items-center gap-2">
+          <FaExclamationTriangle /> {error}
+        </div>
+      </div>
+    );
   }
+
   if (!rows) {
-    return <p className="muted">Loading…</p>;
+    return (
+      <div className="space-y-4">
+        <h1 className="text-4xl font-bold flex items-center gap-2">
+          <FaClipboardList /> My Appointments
+        </h1>
+        <div className="state-loading">
+          <FaSpinner className="inline-block animate-spin" /> Loading appointments...
+        </div>
+      </div>
+    );
   }
 
   if (rows.length === 0) {
     return (
-      <div className="page-stack">
-        <h1>My appointments</h1>
-        <p className="muted">You have no bookings yet.</p>
-        <Link className="btn primary" to="/calendar">
-          Book a slot
-        </Link>
+      <div className="space-y-6">
+        <h1 className="text-4xl font-bold flex items-center gap-2">
+          <FaClipboardList /> My Appointments
+        </h1>
+        <div className="empty-state-container">
+          <FaInbox className="text-6xl mb-4 opacity-50" />
+          <h3 className="empty-state-title">No Appointments Yet</h3>
+          <p className="empty-state-text">You haven't booked any appointments yet. Browse available slots and make your first booking.</p>
+          <Link to="/calendar" className="btn btn-primary mt-6 flex items-center justify-center gap-2">
+            <FaCalendar /> Browse Available Slots
+          </Link>
+        </div>
       </div>
     );
   }
 
   return (
-    <div className="page-stack">
-      <h1>My appointments</h1>
-      <div className="table-wrap">
+    <div className="space-y-6">
+      <div>
+        <h1 className="text-4xl font-bold mb-2 flex items-center gap-2">
+          <FaClipboardList /> My Appointments
+        </h1>
+        <p className="text-gray-400">Manage your upcoming and past appointments</p>
+      </div>
+
+      <div className="overflow-x-auto rounded-xl border border-gray-700 shadow-lg">
         <table className="data-table">
           <thead>
             <tr>
-              <th>When</th>
-              <th>Slot ID</th>
+              <th className="flex items-center gap-1">
+                <FaCalendar /> When
+              </th>
+              <th className="flex items-center gap-1">
+                <FaTag /> Slot ID
+              </th>
               <th>Action</th>
             </tr>
           </thead>
           <tbody>
-            {rows.map((a) => (
-              <tr key={a.id}>
-                <td>
-                  {new Date(a.timeSlot.startAt).toLocaleString()} –{" "}
-                  {new Date(a.timeSlot.endAt).toLocaleString()}
-                </td>
-                <td>{a.timeSlot.id}</td>
-                <td>
-                  <button
-                    className="btn ghost"
-                    onClick={() => handleCancel(a.id)}
-                    disabled={canceling === a.id}
-                  >
-                    {canceling === a.id ? "Canceling…" : "Cancel"}
-                  </button>
-                </td>
-              </tr>
-            ))}
+            {rows.map((row) => {
+              const startDate = new Date(row.timeSlot.startAt);
+              const endDate = new Date(row.timeSlot.endAt);
+              const isPast = endDate < new Date();
+
+              return (
+                <tr key={row.id} className={isPast ? "opacity-60" : ""}>
+                  <td>
+                    <div className="space-y-1">
+                      <p className="font-semibold text-white">
+                        {startDate.toLocaleDateString("en-US", {
+                          weekday: "short",
+                          month: "short",
+                          day: "numeric",
+                        })}
+                      </p>
+                      <p className="text-sm text-gray-400">
+                        {startDate.toLocaleTimeString("en-US", {
+                          hour: "2-digit",
+                          minute: "2-digit",
+                        })}{" "}
+                        -{" "}
+                        {endDate.toLocaleTimeString("en-US", {
+                          hour: "2-digit",
+                          minute: "2-digit",
+                        })}
+                      </p>
+                    </div>
+                  </td>
+                  <td>
+                    <span className="font-mono text-sky-400">#{row.timeSlot.id}</span>
+                  </td>
+                  <td>
+                    <button
+                      onClick={() => handleCancel(row.id)}
+                      disabled={canceling === row.id || isPast}
+                      className="btn btn-danger btn-small flex items-center gap-1"
+                    >
+                      {canceling === row.id ? (
+                        <>
+                          <FaSpinner className="inline-block animate-spin" />
+                          Canceling…
+                        </>
+                      ) : isPast ? (
+                        <>Completed</>
+                      ) : (
+                        <>
+                          <FaTrash /> Cancel
+                        </>
+                      )}
+                    </button>
+                  </td>
+                </tr>
+              );
+            })}
           </tbody>
         </table>
       </div>
-      <Link className="btn" to="/calendar">
-        Book another
-      </Link>
     </div>
   );
 }
