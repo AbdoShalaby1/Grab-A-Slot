@@ -1,0 +1,17 @@
+.booking-calendar-wrap {
+  --fc-border-color: var(--border);
+  --fc-page-bg-color: var(--surface);
+  --fc-neutral-bg-color: var(--bg);
+}
+
+.booking-calendar-wrap .fc {
+  font-size: 0.9rem;
+}
+
+.fc-holiday-bg {
+  opacity: 1;
+}
+
+.booking-calendar-wrap .fc .fc-bg-event {
+  background: rgba(220, 38, 38, 0.12);
+}

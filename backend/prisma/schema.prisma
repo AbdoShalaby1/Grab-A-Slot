@@ -1,0 +1,48 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+enum Role {
+  user
+  admin
+}
+
+model User {
+  id           Int           @id @default(autoincrement())
+  email        String        @unique
+  passwordHash String
+  name         String
+  role         Role          @default(user)
+  createdAt    DateTime      @default(now()) @db.Timestamp(0)
+  appointments Appointment[]
+  createdSlots TimeSlot[]    @relation("CreatedBy")
+}
+
+model TimeSlot {
+  id          Int          @id @default(autoincrement())
+  startAt     DateTime      @db.DateTime(0)
+  endAt       DateTime      @db.DateTime(0)
+  isActive    Boolean      @default(true)
+  createdById Int
+  createdBy   User         @relation("CreatedBy", fields: [createdById], references: [id])
+  appointment Appointment?
+  @@index([startAt])
+  @@index([createdById])
+  @@index([isActive])
+}
+
+model Appointment {
+  id         Int      @id @default(autoincrement())
+  userId     Int
+  timeSlotId Int      @unique
+  createdAt  DateTime @default(now()) @db.Timestamp(0)
+  user       User     @relation(fields: [userId], references: [id])
+  timeSlot   TimeSlot @relation(fields: [timeSlotId], references: [id])
+  @@index([userId])
+  @@index([createdAt])
+}
