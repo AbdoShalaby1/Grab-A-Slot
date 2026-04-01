@@ -13,7 +13,7 @@ export async function validateCode(req: Request, res: Response) {
 }
 
 export async function getAdminCode(req: Request, res: Response) {
-  const userId = (req as any).user?.id;
+  const userId = req.user?.id;
   if (!userId) {
     throw new AppError(401, "Unauthorized");
   }

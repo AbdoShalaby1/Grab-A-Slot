@@ -82,12 +82,6 @@ export function getTimeSlots(params: {
   );
 }
 
-export function getHolidays(year: number, country: string) {
-  return api<{ holidays: import("../types").HolidayItem[] }>(
-    `/api/holidays?year=${year}&country=${encodeURIComponent(country)}`
-  );
-}
-
 export function bookAppointment(timeSlotId: number, adminCodeId: number) {
   return api<{ appointment: { id: number; createdAt: string; timeSlot: unknown } }>(
     "/api/appointments",

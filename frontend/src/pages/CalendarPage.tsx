@@ -1,24 +1,26 @@
-import { useCallback, useRef, useState } from "react";
+import { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import { FaCalendar, FaLock, FaExclamationTriangle, FaSpinner } from "react-icons/fa";
 import { ApiError, bookAppointment, validateAdminCode } from "../api/client";
-import { BookingCalendar, type BookingCalendarHandle } from "../components/BookingCalendar";
+import { SimpleMonthCalendar } from "../components/SimpleMonthCalendar";
 import { useAuth } from "../context/AuthContext";
 import type { TimeSlotListItem } from "../types";
 
 export function CalendarPage() {
   const { user } = useAuth();
-  const calRef = useRef<BookingCalendarHandle>(null);
-  const [country, setCountry] = useState("US");
+  const navigate = useNavigate();
   const [selected, setSelected] = useState<TimeSlotListItem | null>(null);
   const [adminCode, setAdminCode] = useState("");
   const [bookError, setBookError] = useState<string | null>(null);
   const [booking, setBooking] = useState(false);
+  const [refetchKey, setRefetchKey] = useState(0);
 
-  const onSlotSelect = useCallback((slot: TimeSlotListItem) => {
-    setBookError(null);
-    setAdminCode("");
-    setSelected(slot);
-  }, []);
+  // Redirect admins to their dashboard
+  useEffect(() => {
+    if (user?.role === "admin") {
+      navigate("/admin/slots", { replace: true });
+    }
+  }, [user, navigate]);
 
   async function confirmBook() {
     if (!selected || !user || !adminCode.trim()) return;
@@ -31,7 +33,7 @@ export function CalendarPage() {
       await bookAppointment(selected.id, codeData.id);
       setSelected(null);
       setAdminCode("");
-      calRef.current?.refetch();
+      setRefetchKey((prev) => prev + 1);
     } catch (err) {
       setBookError(err instanceof ApiError ? err.message : err instanceof Error ? err.message : "Could not book");
     } finally {
@@ -43,37 +45,41 @@ export function CalendarPage() {
     <div className="space-y-6">
       <div>
         <h1 className="text-4xl font-bold mb-2 flex items-center gap-2">
-          <FaCalendar /> Book a Slot
+          <FaCalendar /> Book an Appointment
         </h1>
         <p className="text-gray-400 max-w-2xl">
-          Select any green time slot from the calendar to book an appointment. Red-tinted days show public holidays. Click on an available slot to confirm your booking.
+          Click on a day to view available time slots. Green is available, blue is today. Click a time slot to book.
         </p>
       </div>
 
-      {/* Country Code Selector */}
-      <div className="card w-full md:w-80">
-        <label htmlFor="country" className="form-label">
-          Holiday Country (ISO Code)
-        </label>
-        <input
-          id="country"
-          type="text"
-          className="form-control uppercase"
-          value={country}
-          onChange={(e) => setCountry(e.target.value.toUpperCase().slice(0, 2))}
-          maxLength={2}
-          placeholder="US"
-          aria-label="Two-letter country code for holidays"
-        />
-        <p className="text-xs text-gray-500 mt-2">Enter a 2-letter country code (e.g., US, GB, DE)</p>
-      </div>
+      {/* Admin Code Input - Visible before booking */}
+      {user && (
+        <div className="card bg-gradient-to-r from-amber-500/10 to-orange-500/10 border-amber-500/30 max-w-2xl">
+          <div className="flex items-center justify-between gap-4">
+            <div>
+              <p className="font-semibold text-white mb-1">Admin Code Required</p>
+              <p className="text-sm text-gray-400">Enter the booking code provided by the administrator to reserve an appointment</p>
+            </div>
+            <input
+              type="text"
+              className="form-control w-32"
+              placeholder="Enter code"
+              value={adminCode}
+              onChange={(e) => setAdminCode(e.target.value.toUpperCase())}
+              maxLength={10}
+            />
+          </div>
+        </div>
+      )}
 
       {/* Calendar Component */}
-      <BookingCalendar
-        ref={calRef}
-        countryCode={country.length === 2 ? country : "US"}
-        canBook={Boolean(user)}
-        onSlotSelect={onSlotSelect}
+      <SimpleMonthCalendar
+        key={refetchKey}
+        canBook={Boolean(user) && Boolean(adminCode)}
+        onSlotSelect={(slot) => {
+          setBookError(null);
+          setSelected(slot);
+        }}
       />
 
       {/* Booking Modal */}
@@ -108,21 +114,13 @@ export function CalendarPage() {
               </p>
             </div>
 
-            <div className="form-group mb-4">
-              <label htmlFor="admin-code" className="form-label">
-                Admin Code
-              </label>
-              <input
-                id="admin-code"
-                type="text"
-                className="form-control"
-                placeholder="Enter admin code"
-                value={adminCode}
-                onChange={(e) => setAdminCode(e.target.value.toUpperCase())}
-                maxLength={10}
-              />
-              <p className="text-xs text-gray-500 mt-1">Ask the admin for a code to book this slot</p>
-            </div>
+            {adminCode && (
+              <div className="bg-green-500/10 rounded-lg p-3 mb-4 border border-green-500/30">
+                <p className="text-sm text-green-400 flex items-center gap-2">
+                  ✓ Admin code verified: {adminCode}
+                </p>
+              </div>
+            )}
 
             {!user && (
               <div className="alert alert-error mb-4 flex items-center gap-2">

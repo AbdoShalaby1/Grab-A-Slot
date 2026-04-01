@@ -21,8 +21,8 @@ export async function getAdminCodeByAdminId(adminId: number) {
     where: { adminId },
   });
 
-  if (!adminCode) {
-    throw new AppError(404, "Admin code not found");
+  if (!adminCode || !adminCode.isActive) {
+    throw new AppError(404, "Admin code not found or inactive");
   }
 
   return adminCode;

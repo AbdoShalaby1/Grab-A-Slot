@@ -5,7 +5,6 @@ import adminCodesRoutes from "./routes/adminCodes.routes.js";
 import adminTimeSlotsRoutes from "./routes/adminTimeSlots.routes.js";
 import appointmentsRoutes from "./routes/appointments.routes.js";
 import authRoutes from "./routes/auth.routes.js";
-import holidaysRoutes from "./routes/holidays.routes.js";
 import timeSlotsRoutes from "./routes/timeSlots.routes.js";
 
 export function createApp() {
@@ -25,7 +24,6 @@ export function createApp() {
   app.use("/api/appointments", appointmentsRoutes);
   app.use("/api/admin/codes", adminCodesRoutes);
   app.use("/api/admin/time-slots", adminTimeSlotsRoutes);
-  app.use("/api/holidays", holidaysRoutes);
 
   app.use(errorHandler);
   return app;

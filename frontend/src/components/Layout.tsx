@@ -30,19 +30,24 @@ export function Layout() {
             <nav className="hidden md:flex items-center gap-1">
               {user ? (
                 <>
-                  <NavLink to="/calendar" icon={<FaCalendar size={14} />} label="Book" />
-                  <NavLink to="/my" icon={<FaClipboardList size={14} />} label="Appointments" />
-                  
-                  {user.role === "admin" && (
-                    <div className="flex items-center gap-1 ml-2 pl-2 border-l border-white/10 transition-all duration-300">
-                      <NavLink to="/admin/slots" icon={<FaCog size={14} />} label="Admin" color="text-emerald-400" />
-                    </div>
+                  {user.role === "admin" ? (
+                    // Admin Navigation
+                    <>
+                      <NavLink to="/admin/slots" icon={<FaCog size={14} />} label="Manage Slots" color="text-emerald-400" />
+                      <NavLink to="/admin/bookings" icon={<FaClipboardList size={14} />} label="View Bookings" color="text-emerald-400" />
+                    </>
+                  ) : (
+                    // User Navigation
+                    <>
+                      <NavLink to="/calendar" icon={<FaCalendar size={14} />} label="Book" />
+                      <NavLink to="/my" icon={<FaClipboardList size={14} />} label="Appointments" />
+                    </>
                   )}
 
                   <div className="flex items-center gap-4 ml-4 pl-4 border-l border-white/10 transition-all duration-300">
                     <div className="flex items-center gap-2 text-xs font-bold text-white bg-white/5 px-4 py-2 rounded-full border border-white/10 hover:border-white/30 hover:bg-white/10 transition-all duration-300 ease-out cursor-default">
-                      <div className="w-2 h-2 rounded-full bg-sky-500 animate-pulse" />
-                      {user.name.toUpperCase()}
+                      <div className={`w-2 h-2 rounded-full animate-pulse ${user.role === "admin" ? "bg-emerald-500" : "bg-sky-500"}`} />
+                      <span>{user.role === "admin" ? "ADMIN" : user.name.toUpperCase()}</span>
                     </div>
                     <button
                       onClick={() => { logout(); navigate("/"); }}

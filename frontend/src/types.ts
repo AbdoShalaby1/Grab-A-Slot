@@ -31,5 +31,3 @@ export type AppointmentRow = {
 export type AdminAppointmentRow = AppointmentRow & {
   user: { id: number; email: string; name: string };
 };
-
-export type HolidayItem = { date: string; localName: string; name: string };

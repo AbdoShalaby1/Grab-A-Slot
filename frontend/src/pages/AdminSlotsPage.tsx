@@ -5,6 +5,12 @@ import {
   FaExclamationTriangle,
   FaPlus,
   FaCopy,
+  FaCalendarAlt,
+  FaUsers,
+  FaChartBar,
+  FaCircle,
+  FaClock,
+  FaArrowRight,
 } from "react-icons/fa";
 import { ApiError } from "../api/client";
 import * as api from "../api/client";
@@ -15,9 +21,13 @@ export function AdminSlotsPage() {
   const [codeCopied, setCodeCopied] = useState(false);
   const [slots, setSlots] = useState<TimeSlotListItem[] | null>(null);
   const [error, setError] = useState<string | null>(null);
-  const [startAt, setStartAt] = useState("");
-  const [endAt, setEndAt] = useState("");
   const [creating, setCreating] = useState(false);
+
+  // New state management for separate date and time
+  const [selectedDate, setSelectedDate] = useState<string>("");
+  const [startTime, setStartTime] = useState<string>("09:00");
+  const [endTime, setEndTime] = useState<string>("10:00");
+  const [validationError, setValidationError] = useState<string | null>(null);
 
   useEffect(() => {
     api.getAdminCode()
@@ -49,16 +59,29 @@ export function AdminSlotsPage() {
 
   async function onCreate(e: FormEvent) {
     e.preventDefault();
-    if (!startAt || !endAt) return;
-    setCreating(true);
+    setValidationError(null);
     setError(null);
+
+    // Validation
+    if (!selectedDate || !startTime || !endTime) {
+      setValidationError("Please select a date and times");
+      return;
+    }
+
+    setCreating(true);
     try {
+      const startAtIso = `${selectedDate}T${startTime}:00Z`;
+      const endAtIso = `${selectedDate}T${endTime}:00Z`;
+
       await api.createTimeSlot({
-        startAt: new Date(startAt).toISOString(),
-        endAt: new Date(endAt).toISOString(),
+        startAt: new Date(startAtIso).toISOString(),
+        endAt: new Date(endAtIso).toISOString(),
       });
-      setStartAt("");
-      setEndAt("");
+
+      // Reset form
+      setSelectedDate("");
+      setStartTime("09:00");
+      setEndTime("10:00");
       await load();
     } catch (err) {
       setError(err instanceof ApiError ? err.message : "Create failed");
@@ -113,7 +136,7 @@ export function AdminSlotsPage() {
           <div className="flex items-center justify-between">
             <div>
               <p className="text-sm text-gray-300 mb-2">Your Booking Code</p>
-              <p className="text-sm text-gray-500">Share this code with patients so they can book appointments</p>
+              <p className="text-sm text-gray-500">Share this code with clients so they can book appointments</p>
             </div>
             <div className="flex items-center gap-2">
               <code className="text-2xl font-mono font-bold text-sky-400 bg-sky-400/10 px-4 py-2 rounded-lg">
@@ -143,48 +166,140 @@ export function AdminSlotsPage() {
         </div>
       )}
 
-      {/* Create New Slot Form */}
-      <div className="card max-w-2xl">
-        <h2 className="card-title mb-6">Create New Time Slot</h2>
-        <form onSubmit={onCreate} className="space-y-6">
-          <div className="form-row">
-            <div className="form-group">
-              <label htmlFor="startAt" className="form-label">
-                Start Time
-              </label>
-              <input
-                id="startAt"
-                type="datetime-local"
-                className="form-control"
-                value={startAt}
-                onChange={(e) => setStartAt(e.target.value)}
-                required
-              />
+      {/* Create New Slot Form - Modern Design */}
+      <div className="card bg-gradient-to-br from-blue-500/5 to-cyan-500/5 border border-blue-500/20 max-w-3xl">
+        <div className="mb-8">
+          <div className="flex items-center gap-3 mb-2">
+            <div className="p-2 bg-blue-500/20 rounded-lg">
+              <FaPlus className="text-blue-400" />
             </div>
-            <div className="form-group">
-              <label htmlFor="endAt" className="form-label">
-                End Time
-              </label>
-              <input
-                id="endAt"
-                type="datetime-local"
-                className="form-control"
-                value={endAt}
-                onChange={(e) => setEndAt(e.target.value)}
-                required
-              />
-            </div>
+            <h2 className="text-2xl font-bold text-white">Create Time Slot</h2>
           </div>
-          <button type="submit" className="btn btn-primary" disabled={creating}>
+          <p className="text-gray-400 text-sm ml-11">Add a new appointment slot for users to book</p>
+        </div>
+
+        <form onSubmit={onCreate} className="space-y-8">
+          {/* Date Selection */}
+          <div>
+            <label htmlFor="date" className="block text-sm font-semibold text-gray-300 mb-3 flex items-center gap-2">
+              <FaCalendarAlt className="text-blue-400" size={14} />
+              Select Date
+            </label>
+            <input
+              id="date"
+              type="date"
+              value={selectedDate}
+              onChange={(e) => setSelectedDate(e.target.value)}
+              className="w-full px-4 py-3 bg-gray-950/50 border border-blue-500/30 text-white rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200"
+              required
+            />
+          </div>
+
+          {selectedDate && (
+            <div className="p-4 bg-blue-500/10 border border-blue-500/20 rounded-lg">
+              <p className="text-sm text-blue-300">
+                ✓ Selected: <span className="font-semibold">{new Date(selectedDate).toLocaleDateString("en-US", { weekday: "long", month: "long", day: "numeric" })}</span>
+              </p>
+            </div>
+          )}
+
+          {/* Time Selection */}
+          {selectedDate && (
+            <div className="space-y-4">
+              <label className="block text-sm font-semibold text-gray-300 flex items-center gap-2">
+                <FaClock className="text-cyan-400" size={14} />
+                Time Range
+              </label>
+              
+              <div className="grid grid-cols-2 gap-4">
+                {/* Start Time */}
+                <div>
+                  <label htmlFor="startTime" className="block text-xs font-medium text-gray-400 mb-2 uppercase tracking-wide">
+                    Start Time
+                  </label>
+                  <input
+                    id="startTime"
+                    type="time"
+                    value={startTime}
+                    onChange={(e) => {
+                      setStartTime(e.target.value);
+                      setValidationError(null);
+                    }}
+                    max={endTime || "23:59"}
+                    className="w-full px-4 py-3 bg-gray-950/50 border border-cyan-500/30 text-white rounded-xl focus:outline-none focus:ring-2 focus:ring-cyan-500 focus:border-transparent transition-all duration-200 text-center text-lg font-semibold"
+                    required
+                  />
+                </div>
+
+                {/* Arrow divider */}
+                <div className="flex items-end justify-center pb-3">
+                  <div className="flex items-center gap-2 text-gray-500">
+                    <FaArrowRight size={16} />
+                  </div>
+                </div>
+              </div>
+
+              {/* End Time */}
+              <div>
+                <label htmlFor="endTime" className="block text-xs font-medium text-gray-400 mb-2 uppercase tracking-wide">
+                  End Time
+                </label>
+                <input
+                  id="endTime"
+                  type="time"
+                  value={endTime}
+                  onChange={(e) => {
+                    setEndTime(e.target.value);
+                    setValidationError(null);
+                  }}
+                  min={startTime || "00:00"}
+                  className="w-full px-4 py-3 bg-gray-950/50 border border-cyan-500/30 text-white rounded-xl focus:outline-none focus:ring-2 focus:ring-cyan-500 focus:border-transparent transition-all duration-200 text-center text-lg font-semibold"
+                  required
+                />
+              </div>
+            </div>
+          )}
+
+          {/* Validation Error */}
+          {validationError && (
+            <div className="p-3 bg-yellow-500/10 border border-yellow-500/30 rounded-lg flex items-center gap-2">
+              <FaExclamationTriangle className="text-yellow-400 flex-shrink-0" size={16} />
+              <p className="text-sm text-yellow-300">{validationError}</p>
+            </div>
+          )}
+
+          {/* Time Duration Display */}
+          {selectedDate && startTime && endTime && endTime > startTime && (
+            <div className="p-4 bg-gradient-to-r from-green-500/10 to-emerald-500/10 border border-green-500/30 rounded-lg">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-xs text-gray-400 uppercase tracking-wide font-semibold mb-1">Duration</p>
+                  <p className="text-lg font-bold text-green-400">
+                    {Math.floor((parseInt(endTime.split(":")[0]) * 60 + parseInt(endTime.split(":")[1]) - parseInt(startTime.split(":")[0]) * 60 - parseInt(startTime.split(":")[1])) / 60)} hours
+                    {" "}
+                    {(parseInt(endTime.split(":")[0]) * 60 + parseInt(endTime.split(":")[1]) - parseInt(startTime.split(":")[0]) * 60 - parseInt(startTime.split(":")[1])) % 60} minutes
+                  </p>
+                </div>
+                <div className="text-3xl text-green-400/20">✓</div>
+              </div>
+            </div>
+          )}
+
+          {/* Submit Button */}
+          <button
+            type="submit"
+            disabled={creating || !selectedDate}
+            className="w-full py-4 bg-gradient-to-r from-blue-500 to-cyan-500 hover:from-blue-400 hover:to-cyan-400 disabled:from-gray-600 disabled:to-gray-600 text-white font-bold rounded-xl transition-all duration-300 flex items-center justify-center gap-2 shadow-lg shadow-blue-500/20 hover:shadow-blue-500/40 disabled:shadow-none disabled:opacity-50 disabled:cursor-not-allowed"
+          >
             {creating ? (
               <>
-                <span className="inline-block w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-loader" />
-                Creating…
+                <span className="inline-block w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                Creating Slot…
               </>
             ) : (
               <>
-                <FaPlus />
-                Add Slot
+                <FaPlus size={16} />
+                Add Time Slot
               </>
             )}
           </button>
@@ -287,7 +402,7 @@ export function AdminSlotsPage() {
                             </span>
                           ) : s.bookedByMe ? (
                             <span className="text-blue-400 flex items-center gap-1">
-                              <FaUser /> You
+                              <FaUsers /> Your Booking
                             </span>
                           ) : (
                             <span className="text-gray-400">— Booked</span>

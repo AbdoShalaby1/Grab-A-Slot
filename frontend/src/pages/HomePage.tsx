@@ -31,12 +31,25 @@ export function HomePage() {
           <div className="flex flex-col sm:flex-row items-center lg:justify-start justify-center gap-4">
             {user ? (
               <>
-                <Link to="/calendar" className="w-full sm:w-auto px-8 py-4 bg-sky-500 hover:bg-sky-400 text-white rounded-2xl font-bold transition-all duration-300 flex items-center justify-center gap-2 shadow-xl shadow-sky-500/20 ">
-                  <FaCalendar size={18} /> Open Calendar
-                </Link>
-                <Link to="/my" className="w-full sm:w-auto px-8 py-4 bg-white/5 hover:bg-white/10 text-white border border-white/10 rounded-2xl font-bold transition-all flex items-center justify-center gap-2 backdrop-blur-sm">
-                  <FaClipboardList size={18} /> My Appointments
-                </Link>
+                {user.role === "admin" ? (
+                  <>
+                    <Link to="/admin/slots" className="w-full sm:w-auto px-8 py-4 bg-sky-500 hover:bg-sky-400 text-white rounded-2xl font-bold transition-all duration-300 flex items-center justify-center gap-2 shadow-xl shadow-sky-500/20 ">
+                      <FaCalendar size={18} /> Manage Slots
+                    </Link>
+                    <Link to="/admin/bookings" className="w-full sm:w-auto px-8 py-4 bg-white/5 hover:bg-white/10 text-white border border-white/10 rounded-2xl font-bold transition-all flex items-center justify-center gap-2 backdrop-blur-sm">
+                      <FaClipboardList size={18} /> View Bookings
+                    </Link>
+                  </>
+                ) : (
+                  <>
+                    <Link to="/calendar" className="w-full sm:w-auto px-8 py-4 bg-sky-500 hover:bg-sky-400 text-white rounded-2xl font-bold transition-all duration-300 flex items-center justify-center gap-2 shadow-xl shadow-sky-500/20 ">
+                      <FaCalendar size={18} /> Open Calendar
+                    </Link>
+                    <Link to="/my" className="w-full sm:w-auto px-8 py-4 bg-white/5 hover:bg-white/10 text-white border border-white/10 rounded-2xl font-bold transition-all flex items-center justify-center gap-2 backdrop-blur-sm">
+                      <FaClipboardList size={18} /> My Appointments
+                    </Link>
+                  </>
+                )}
               </>
             ) : (
               <>

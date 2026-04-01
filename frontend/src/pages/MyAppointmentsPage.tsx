@@ -1,14 +1,24 @@
 import { useCallback, useEffect, useState } from "react";
-import { Link } from "react-router-dom";
-import { FaExclamationTriangle, FaSpinner, FaCalendar, FaTag, FaTrash, FaInbox, FaClipboardList } from "react-icons/fa";
+import { Link, useNavigate } from "react-router-dom";
+import { FaExclamationTriangle, FaSpinner, FaCalendar, FaTrash, FaInbox, FaClipboardList } from "react-icons/fa";
 import { ApiError } from "../api/client";
 import * as api from "../api/client";
+import { useAuth } from "../context/AuthContext";
 import type { AppointmentRow } from "../types";
 
 export function MyAppointmentsPage() {
+  const { user } = useAuth();
+  const navigate = useNavigate();
   const [rows, setRows] = useState<AppointmentRow[] | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [canceling, setCanceling] = useState<number | null>(null);
+
+  // Redirect admins away from their appointments page
+  useEffect(() => {
+    if (user?.role === "admin") {
+      navigate("/admin/slots", { replace: true });
+    }
+  }, [user, navigate]);
 
   const fetchAppointments = useCallback(async () => {
     try {
@@ -97,9 +107,6 @@ export function MyAppointmentsPage() {
               <th className="flex items-center gap-1">
                 <FaCalendar /> When
               </th>
-              <th className="flex items-center gap-1">
-                <FaTag /> Slot ID
-              </th>
               <th>Action</th>
             </tr>
           </thead>
@@ -132,9 +139,6 @@ export function MyAppointmentsPage() {
                         })}
                       </p>
                     </div>
-                  </td>
-                  <td>
-                    <span className="font-mono text-sky-400">#{row.timeSlot.id}</span>
                   </td>
                   <td>
                     <button

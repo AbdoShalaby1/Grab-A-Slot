@@ -5,7 +5,7 @@ import FullCalendar from "@fullcalendar/react";
 import timeGridPlugin from "@fullcalendar/timegrid";
 import { forwardRef, useCallback, useImperativeHandle, useRef } from "react";
 import * as api from "../api/client";
-import type { HolidayItem, TimeSlotListItem } from "../types";
+import type { TimeSlotListItem } from "../types";
 import "./BookingCalendar.css";
 
 function slotToEvent(s: TimeSlotListItem): EventInput {
@@ -38,14 +38,13 @@ function slotToEvent(s: TimeSlotListItem): EventInput {
 export type BookingCalendarHandle = { refetch: () => void };
 
 type Props = {
-  countryCode: string;
   canBook: boolean;
   onSlotSelect: (slot: TimeSlotListItem) => void;
   onEventsLoaded?: () => void;
 };
 
 export const BookingCalendar = forwardRef<BookingCalendarHandle, Props>(function BookingCalendar(
-  { countryCode, canBook, onSlotSelect, onEventsLoaded },
+  { canBook, onSlotSelect, onEventsLoaded },
   ref
 ) {
   const calRef = useRef<FullCalendar>(null);
@@ -59,26 +58,12 @@ export const BookingCalendar = forwardRef<BookingCalendarHandle, Props>(function
     async (info: { startStr: string; endStr: string }): Promise<EventInput[]> => {
       const fromIso = toApiDateTime(info.startStr);
       const toIso = toApiDateTime(info.endStr);
-      const [{ slots }, holidaysRes] = await Promise.all([
-        api.getTimeSlots({ from: fromIso, to: toIso }),
-        api
-          .getHolidays(new Date(fromIso).getFullYear(), countryCode)
-          .catch(() => ({ holidays: [] as HolidayItem[] })),
-      ]);
-
-      const holidayEvents: EventInput[] = (holidaysRes.holidays ?? []).map((h) => ({
-        id: `holiday-${h.date}-${h.name}`,
-        title: h.localName,
-        start: h.date,
-        allDay: true,
-        display: "background",
-        classNames: ["fc-holiday-bg"],
-      }));
+      const { slots } = await api.getTimeSlots({ from: fromIso, to: toIso });
 
       onEventsLoaded?.();
-      return [...holidayEvents, ...slots.map(slotToEvent)];
+      return slots.map(slotToEvent);
     },
-    [countryCode, onEventsLoaded, toApiDateTime]
+    [onEventsLoaded, toApiDateTime]
   );
 
   const handleEventClick = useCallback(

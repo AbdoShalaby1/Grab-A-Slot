@@ -1,7 +1,12 @@
 import type { Request, Response } from "express";
 import * as appointmentService from "../services/appointment.service.js";
+import { AppError } from "../utils/AppError.js";
 
 export async function create(req: Request, res: Response) {
+  const userRole = (req.user as any)?.role;
+  if (userRole === "admin") {
+    throw new AppError(403, "Admins cannot book appointments");
+  }
   const { timeSlotId, adminCodeId } = req.body as { timeSlotId: number; adminCodeId: number };
   const userId = req.user!.id;
   const appointment = await appointmentService.createAppointment(userId, timeSlotId, adminCodeId);
