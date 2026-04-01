@@ -1,0 +1,31 @@
+# Use a slim Node image to keep the container light
+FROM node:20-slim
+
+# Install openssl - Prisma needs this to run on Linux
+RUN apt-get update -y && apt-get install -y openssl
+
+# Set the working directory
+WORKDIR /app
+
+# Copy package files first for better caching
+COPY package*.json ./
+
+# Install dependencies
+RUN npm install
+
+# Copy the Prisma directory (needed for generation)
+COPY prisma ./prisma/
+
+# Generate the Prisma client
+RUN npx prisma generate
+
+# Copy the rest of your backend code
+COPY . .
+
+# Back4app uses the PORT environment variable
+ENV PORT=8080
+EXPOSE 8080
+
+# The command to run your app
+# Using 'prisma migrate deploy' ensures your DB updates on every startup
+CMD npx prisma migrate deploy && node index.js
