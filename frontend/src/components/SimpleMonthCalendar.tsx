@@ -224,6 +224,15 @@ export function SimpleMonthCalendar({ canBook, adminCodeId, onSlotSelect }: Prop
                     <span className="time-range">
                       {startTime} - {endTime}
                     </span>
+                    <span className="status-text">
+                      {isBooked
+                        ? "Your Booking"
+                        : isAvailable
+                          ? "Available"
+                          : !slot.isActive
+                            ? "Inactive"
+                            : "Booked"}
+                    </span>
                   </button>
                 );
               })}

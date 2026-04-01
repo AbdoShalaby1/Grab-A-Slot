@@ -257,6 +257,15 @@
   text-align: center;
 }
 
+.status-text {
+  font-size: 0.75rem;
+  margin-top: 0.5rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  opacity: 0.9;
+}
+
 /* Available Slot */
 .slot-button.available {
   background: linear-gradient(135deg, rgba(5, 150, 105, 0.3) 0%, rgba(4, 120, 87, 0.3) 100%);
