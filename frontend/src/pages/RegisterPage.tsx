@@ -145,7 +145,7 @@ export function RegisterPage() {
                 <button
                   type="button"
                   onClick={() => setRole("user")}
-                  className={`flex-1 flex items-center justify-center gap-2 py-2.5 text-sm font-semibold rounded-lg transition-all duration-200 ${
+                  className={`flex-1 flex items-center justify-center gap-2 py-2.5 text-sm font-semibold rounded-lg transition-all duration-200 cursor-pointer ${
                     role === "user"
                       ? "bg-cyan-500/20 text-cyan-400 border border-cyan-500/30 shadow-sm"
                       : "text-gray-400 hover:text-gray-200 hover:bg-gray-800/50 border border-transparent"
@@ -156,7 +156,7 @@ export function RegisterPage() {
                 <button
                   type="button"
                   onClick={() => setRole("admin")}
-                  className={`flex-1 flex items-center justify-center gap-2 py-2.5 text-sm font-semibold rounded-lg transition-all duration-200 ${
+                  className={`flex-1 flex items-center justify-center gap-2 py-2.5 text-sm font-semibold rounded-lg transition-all duration-200 cursor-pointer ${
                     role === "admin"
                       ? "bg-cyan-500/20 text-cyan-400 border border-cyan-500/30 shadow-sm"
                       : "text-gray-400 hover:text-gray-200 hover:bg-gray-800/50 border border-transparent"
@@ -171,7 +171,7 @@ export function RegisterPage() {
             <button
               type="submit"
               disabled={pending}
-              className="w-full mt-2 bg-gradient-to-r from-cyan-500 to-blue-500 hover:from-cyan-400 hover:to-blue-400 text-white font-semibold py-3 px-4 rounded-xl shadow-lg shadow-cyan-500/30 transition-all duration-200 flex items-center justify-center group disabled:opacity-70 disabled:cursor-not-allowed transform hover:-translate-y-0.5 disabled:hover:translate-y-0"
+              className="cursor-pointer w-full mt-2 bg-gradient-to-r from-cyan-500 to-blue-500 hover:from-cyan-400 hover:to-blue-400 text-white font-semibold py-3 px-4 rounded-xl shadow-lg shadow-cyan-500/30 transition-all duration-200 flex items-center justify-center group disabled:opacity-70 disabled:cursor-not-allowed transform hover:-translate-y-0.5 disabled:hover:translate-y-0"
             >
               {pending ? (
                 <>
@@ -193,7 +193,7 @@ export function RegisterPage() {
               Already have an account?{" "}
               <Link 
                 to="/login" 
-                className="text-cyan-400 hover:text-cyan-300 font-semibold transition-colors relative after:content-[''] after:absolute after:-bottom-1 after:left-0 after:w-0 after:h-[2px] after:bg-cyan-400 hover:after:w-full after:transition-all after:duration-300"
+                className="text-cyan-400 hover:text-cyan-300 font-semibold transition-colors relative after:content-[''] after:absolute after:-bottom-1 after:left-0 after:w-0 after:h-[2px] after:bg-cyan-400 hover:after:w-full after:transition-all after:duration-300 cursor-pointer"
               >
                 Sign In
               </Link>

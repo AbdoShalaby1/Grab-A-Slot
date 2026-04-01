@@ -144,7 +144,7 @@ export function AdminSlotsPage() {
               </code>
               <button
                 onClick={copyCode}
-                className="p-3 text-gray-400 hover:text-sky-400 hover:bg-sky-500/10 rounded-lg transition-colors"
+                className="p-3 text-gray-400 hover:text-sky-400 hover:bg-sky-500/10 rounded-lg transition-colors cursor-pointer"
                 title="Copy code"
               >
                 {codeCopied ? (

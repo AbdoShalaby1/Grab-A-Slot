@@ -1,10 +1,12 @@
 import { Link, Outlet, useNavigate } from "react-router-dom";
-import { FaCalendar, FaClipboardList, FaCog, FaSignOutAlt } from "react-icons/fa";
+import { FaCalendar, FaClipboardList, FaCog, FaSignOutAlt, FaBars, FaTimes } from "react-icons/fa";
 import { useAuth } from "../context/AuthContext";
+import { useState } from "react";
 
 export function Layout() {
   const { user, logout } = useAuth();
   const navigate = useNavigate();
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   return (
     <div className="min-h-screen flex flex-col bg-[#030712] text-gray-400 selection:bg-sky-500/30">
@@ -72,9 +74,93 @@ export function Layout() {
                 </div>
               )}
             </nav>
+
+            {/* Mobile Menu Button */}
+            <button
+              onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+              className="md:hidden p-2 text-gray-400 hover:text-white transition-colors duration-300 cursor-pointer"
+              title="Menu"
+            >
+              {mobileMenuOpen ? <FaTimes size={24} /> : <FaBars size={24} />}
+            </button>
           </div>
         </div>
       </header>
+
+      {/* Mobile Menu */}
+      {mobileMenuOpen && (
+        <div className="md:hidden bg-[#030712]/95 backdrop-blur-xl border-b border-white/5 animate-fadeIn">
+          <div className="px-4 py-4 space-y-2">
+            {user ? (
+              <>
+                <div className="flex items-center gap-2 text-xs font-bold text-white bg-white/5 px-4 py-2 rounded-lg border border-white/10 mb-4">
+                  <div className={`w-2 h-2 rounded-full animate-pulse ${user.role === "admin" ? "bg-emerald-500" : "bg-sky-500"}`} />
+                  <span>{user.role === "admin" ? "ADMIN" : user.name.toUpperCase()}</span>
+                </div>
+                
+                {user.role === "admin" ? (
+                  // Admin Mobile Navigation
+                  <>
+                    <MobileNavLink 
+                      to="/admin/slots" 
+                      icon={<FaCog size={14} />} 
+                      label="Manage Slots" 
+                      onClick={() => setMobileMenuOpen(false)}
+                    />
+                    <MobileNavLink 
+                      to="/admin/bookings" 
+                      icon={<FaClipboardList size={14} />} 
+                      label="View Bookings" 
+                      onClick={() => setMobileMenuOpen(false)}
+                    />
+                  </>
+                ) : (
+                  // User Mobile Navigation
+                  <>
+                    <MobileNavLink 
+                      to="/calendar" 
+                      icon={<FaCalendar size={14} />} 
+                      label="Book" 
+                      onClick={() => setMobileMenuOpen(false)}
+                    />
+                    <MobileNavLink 
+                      to="/my" 
+                      icon={<FaClipboardList size={14} />} 
+                      label="Appointments" 
+                      onClick={() => setMobileMenuOpen(false)}
+                    />
+                  </>
+                )}
+                
+                <button
+                  onClick={() => { logout(); navigate("/"); setMobileMenuOpen(false); }}
+                  className="w-full flex items-center gap-3 px-4 py-2.5 rounded-lg text-sm font-bold text-red-400 hover:bg-red-500/10 transition-all duration-300 ease-out active:scale-95 cursor-pointer"
+                >
+                  <FaSignOutAlt size={14} />
+                  <span>Sign Out</span>
+                </button>
+              </>
+            ) : (
+              <div className="flex flex-col gap-3">
+                <Link 
+                  to="/login" 
+                  className="px-4 py-2.5 rounded-lg text-sm font-bold text-gray-400 hover:text-white hover:bg-white/[0.08] transition-all duration-300 ease-out text-center cursor-pointer"
+                  onClick={() => setMobileMenuOpen(false)}
+                >
+                  Sign In
+                </Link>
+                <Link 
+                  to="/register" 
+                  className="bg-white text-black px-4 py-2.5 rounded-lg text-sm font-black hover:bg-sky-400 hover:text-white transition-all duration-300 cubic-bezier(0.34, 1.56, 0.64, 1) shadow-lg shadow-white/5 text-center active:scale-95 cursor-pointer"
+                  onClick={() => setMobileMenuOpen(false)}
+                >
+                  Get Started
+                </Link>
+              </div>
+            )}
+          </div>
+        </div>
+      )}
 
       {/* Main Content */}
 
@@ -116,6 +202,21 @@ function NavLink({ to, icon, label, color = "text-sky-400" }: { to: string; icon
       <span className="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-700 ease-in-out" />
       <span className={`${color} group-hover:scale-125 group-hover:rotate-12 transition-all duration-300 cubic-bezier(0.34, 1.56, 0.64, 1) relative z-10`}>{icon}</span>
       <span className="relative z-10 transition-transform duration-300 ease-out group-hover:translate-x-0.5">{label}</span>
+    </Link>
+  );
+}
+
+function MobileNavLink({ to, icon, label, onClick }: { to: string; icon: React.ReactNode; label: string; onClick?: () => void }) {
+  return (
+    <Link 
+      to={to} 
+      onClick={onClick}
+      className="flex items-center gap-3 px-4 py-2.5 rounded-lg text-sm font-bold text-gray-400 hover:text-white hover:bg-white/[0.08] transition-all duration-300 ease-out active:scale-95 cursor-pointer"
+    >
+      <span className="text-sky-400 group-hover:scale-125 group-hover:rotate-12 transition-all duration-300">
+        {icon}
+      </span>
+      <span>{label}</span>
     </Link>
   );
 }

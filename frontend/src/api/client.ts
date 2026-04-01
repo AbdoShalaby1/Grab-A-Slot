@@ -67,6 +67,7 @@ export function getTimeSlots(params: {
   from?: string;
   to?: string;
   availableOnly?: boolean;
+  adminCodeId?: number;
   skip?: number;
   take?: number;
 }) {
@@ -74,6 +75,7 @@ export function getTimeSlots(params: {
   if (params.from) q.set("from", params.from);
   if (params.to) q.set("to", params.to);
   if (params.availableOnly) q.set("availableOnly", "true");
+  if (params.adminCodeId !== undefined) q.set("adminCodeId", String(params.adminCodeId));
   if (params.skip !== undefined) q.set("skip", String(params.skip));
   if (params.take !== undefined) q.set("take", String(params.take));
   const qs = q.toString();

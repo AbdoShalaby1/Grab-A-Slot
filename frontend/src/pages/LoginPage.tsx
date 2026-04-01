@@ -108,7 +108,7 @@ export function LoginPage() {
             <button 
               type="submit" 
               disabled={pending}
-              className="w-full bg-gradient-to-r from-cyan-500 to-blue-500 hover:from-cyan-400 hover:to-blue-400 text-white font-semibold py-3 px-4 rounded-xl shadow-lg shadow-cyan-500/30 transition-all duration-200 flex items-center justify-center group disabled:opacity-70 disabled:cursor-not-allowed transform hover:-translate-y-0.5 disabled:hover:translate-y-0"
+              className="w-full bg-gradient-to-r from-cyan-500 to-blue-500 hover:from-cyan-400 hover:to-blue-400 text-white font-semibold py-3 px-4 rounded-xl shadow-lg shadow-cyan-500/30 transition-all duration-200 flex items-center justify-center group disabled:opacity-70 disabled:cursor-not-allowed transform hover:-translate-y-0.5 disabled:hover:translate-y-0 cursor-pointer"
             >
               {pending ? (
                 <>
@@ -130,7 +130,7 @@ export function LoginPage() {
               Don't have an account?{" "}
               <Link 
                 to="/register" 
-                className="text-cyan-400 hover:text-cyan-300 font-semibold transition-colors relative after:content-[''] after:absolute after:-bottom-1 after:left-0 after:w-0 after:h-[2px] after:bg-cyan-400 hover:after:w-full after:transition-all after:duration-300"
+                className="text-cyan-400 hover:text-cyan-300 font-semibold transition-colors relative after:content-[''] after:absolute after:-bottom-1 after:left-0 after:w-0 after:h-[2px] after:bg-cyan-400 hover:after:w-full after:transition-all after:duration-300 cursor-pointer"
               >
                 Create one
               </Link>

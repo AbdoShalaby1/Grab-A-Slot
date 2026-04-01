@@ -11,8 +11,11 @@ export function CalendarPage() {
   const navigate = useNavigate();
   const [selected, setSelected] = useState<TimeSlotListItem | null>(null);
   const [adminCode, setAdminCode] = useState("");
+  const [validatedAdminCodeId, setValidatedAdminCodeId] = useState<number | null>(null);
   const [bookError, setBookError] = useState<string | null>(null);
   const [booking, setBooking] = useState(false);
+  const [validateError, setValidateError] = useState<string | null>(null);
+  const [validating, setValidating] = useState(false);
   const [refetchKey, setRefetchKey] = useState(0);
 
   // Redirect admins to their dashboard
@@ -22,17 +25,40 @@ export function CalendarPage() {
     }
   }, [user, navigate]);
 
+  async function handleValidateAdminCode() {
+    if (!adminCode.trim()) return;
+    setValidateError(null);
+    setValidating(true);
+    try {
+      const codeData = await validateAdminCode(adminCode.trim());
+      setValidatedAdminCodeId(codeData.id);
+    } catch (err) {
+      setValidateError(err instanceof ApiError ? err.message : err instanceof Error ? err.message : "Invalid admin code");
+      setAdminCode("");
+      setValidatedAdminCodeId(null);
+    } finally {
+      setValidating(false);
+    }
+  }
+
+  function handleClearAdminCode() {
+    setAdminCode("");
+    setValidatedAdminCodeId(null);
+    setValidateError(null);
+    setSelected(null);
+    setRefetchKey((prev) => prev + 1);
+  }
+
   async function confirmBook() {
-    if (!selected || !user || !adminCode.trim()) return;
+    if (!selected || !user || !validatedAdminCodeId) return;
     setBookError(null);
     setBooking(true);
     try {
-      // Validate the admin code and get its ID
-      const codeData = await validateAdminCode(adminCode.trim());
-      // Book the appointment with the code ID
-      await bookAppointment(selected.id, codeData.id);
+      // Book the appointment with the validated code ID
+      await bookAppointment(selected.id, validatedAdminCodeId);
       setSelected(null);
       setAdminCode("");
+      setValidatedAdminCodeId(null);
       setRefetchKey((prev) => prev + 1);
     } catch (err) {
       setBookError(err instanceof ApiError ? err.message : err instanceof Error ? err.message : "Could not book");
@@ -52,39 +78,85 @@ export function CalendarPage() {
         </p>
       </div>
 
-      {/* Admin Code Input - Visible before booking */}
-      {user && (
+      {/* Admin Code Input - Visible before validation */}
+      {user && validatedAdminCodeId === null && (
         <div className="card bg-gradient-to-r from-amber-500/10 to-orange-500/10 border-amber-500/30 max-w-2xl">
-          <div className="flex items-center justify-between gap-4">
+          <div className="space-y-4">
             <div>
               <p className="font-semibold text-white mb-1">Admin Code Required</p>
               <p className="text-sm text-gray-400">Enter the booking code provided by the administrator to reserve an appointment</p>
             </div>
-            <input
-              type="text"
-              className="form-control w-32"
-              placeholder="Enter code"
-              value={adminCode}
-              onChange={(e) => setAdminCode(e.target.value.toUpperCase())}
-              maxLength={10}
-            />
+            <div className="flex items-center gap-3">
+              <input
+                type="text"
+                className="form-control flex-1"
+                placeholder="Enter code"
+                value={adminCode}
+                onChange={(e) => setAdminCode(e.target.value.toUpperCase())}
+                maxLength={10}
+                disabled={validating}
+              />
+              <button
+                onClick={handleValidateAdminCode}
+                disabled={!adminCode.trim() || validating}
+                className="btn btn-primary"
+              >
+                {validating ? (
+                  <>
+                    <FaSpinner className="inline-block animate-spin" />
+                    Validating…
+                  </>
+                ) : (
+                  "Confirm"
+                )}
+              </button>
+            </div>
+            {validateError && (
+              <div className="alert alert-error flex items-center gap-2">
+                <FaExclamationTriangle /> {validateError}
+              </div>
+            )}
           </div>
         </div>
       )}
 
-      {/* Calendar Component */}
-      <SimpleMonthCalendar
-        key={refetchKey}
-        canBook={Boolean(user) && Boolean(adminCode)}
-        onSlotSelect={(slot) => {
-          setBookError(null);
-          setSelected(slot);
-        }}
-      />
+      {/* Admin Code Validated - Show selected code */}
+      {user && validatedAdminCodeId !== null && (
+        <div className="card bg-gradient-to-r from-green-500/10 to-emerald-500/10 border-green-500/30 max-w-2xl">
+          <div className="flex items-center justify-between gap-4">
+            <div className="flex items-center gap-2">
+              <span className="text-2xl">✓</span>
+              <div>
+                <p className="font-semibold text-white">Admin Code Verified</p>
+                <p className="text-sm text-gray-400">Code: <span className="font-mono font-bold text-green-400">{adminCode}</span></p>
+              </div>
+            </div>
+            <button
+              onClick={handleClearAdminCode}
+              className="btn btn-secondary btn-small"
+            >
+              Change
+            </button>
+          </div>
+        </div>
+      )}
+
+      {/* Calendar Component - Only show after admin code is validated */}
+      {validatedAdminCodeId !== null && (
+        <SimpleMonthCalendar
+          key={refetchKey}
+          canBook={Boolean(user)}
+          adminCodeId={validatedAdminCodeId}
+          onSlotSelect={(slot) => {
+            setBookError(null);
+            setSelected(slot);
+          }}
+        />
+      )}
 
       {/* Booking Modal */}
       {selected && (
-        <div className="modal-backdrop" role="presentation" onClick={() => !booking && setSelected(null)}>
+        <div className="modal-backdrop cursor-pointer" role="presentation" onClick={() => !booking && setSelected(null)}>
           <div
             className="modal"
             role="dialog"
@@ -114,7 +186,7 @@ export function CalendarPage() {
               </p>
             </div>
 
-            {adminCode && (
+            {validatedAdminCodeId && (
               <div className="bg-green-500/10 rounded-lg p-3 mb-4 border border-green-500/30">
                 <p className="text-sm text-green-400 flex items-center gap-2">
                   ✓ Admin code verified: {adminCode}
@@ -147,7 +219,7 @@ export function CalendarPage() {
                 type="button"
                 className="btn btn-primary"
                 onClick={confirmBook}
-                disabled={!user || booking || !adminCode.trim()}
+                disabled={!user || booking || !validatedAdminCodeId}
               >
                 {booking ? (
                   <>

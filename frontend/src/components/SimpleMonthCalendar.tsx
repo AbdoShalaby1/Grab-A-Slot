@@ -6,10 +6,11 @@ import "./SimpleMonthCalendar.css";
 
 type Props = {
   canBook: boolean;
+  adminCodeId?: number;
   onSlotSelect: (slot: TimeSlotListItem) => void;
 };
 
-export function SimpleMonthCalendar({ canBook, onSlotSelect }: Props) {
+export function SimpleMonthCalendar({ canBook, adminCodeId, onSlotSelect }: Props) {
   const [currentDate, setCurrentDate] = useState(new Date());
   const [selectedDate, setSelectedDate] = useState<Date | null>(null);
   const [slotsForDate, setSlotsForDate] = useState<TimeSlotListItem[]>([]);
@@ -33,6 +34,7 @@ export function SimpleMonthCalendar({ canBook, onSlotSelect }: Props) {
         const { slots } = await api.getTimeSlots({
           from: fromIso,
           to: toIso,
+          adminCodeId,
         });
 
         setSlotsForDate(slots);
@@ -44,7 +46,7 @@ export function SimpleMonthCalendar({ canBook, onSlotSelect }: Props) {
         setLoading(false);
       }
     },
-    [canBook]
+    [canBook, adminCodeId]
   );
 
   const daysInMonth = (date: Date) => new Date(date.getFullYear(), date.getMonth() + 1, 0).getDate();
@@ -68,6 +70,7 @@ export function SimpleMonthCalendar({ canBook, onSlotSelect }: Props) {
         const { slots } = await api.getTimeSlots({
           from: fromIso,
           to: toIso,
+          adminCodeId,
         });
 
         // Group available slots by day
@@ -85,7 +88,7 @@ export function SimpleMonthCalendar({ canBook, onSlotSelect }: Props) {
       }
     };
     loadMonthSlots();
-  }, [currentDate, canBook]);
+  }, [currentDate, canBook, adminCodeId]);
 
   const goToPreviousMonth = () => {
     setCurrentDate(new Date(currentDate.getFullYear(), currentDate.getMonth() - 1));

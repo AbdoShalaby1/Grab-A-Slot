@@ -33,19 +33,19 @@ export function HomePage() {
               <>
                 {user.role === "admin" ? (
                   <>
-                    <Link to="/admin/slots" className="w-full sm:w-auto px-8 py-4 bg-sky-500 hover:bg-sky-400 text-white rounded-2xl font-bold transition-all duration-300 flex items-center justify-center gap-2 shadow-xl shadow-sky-500/20 ">
+                    <Link to="/admin/slots" className="w-full sm:w-auto px-8 py-4 bg-sky-500 hover:bg-sky-400 text-white rounded-2xl font-bold transition-all duration-300 flex items-center justify-center gap-2 shadow-xl shadow-sky-500/20 cursor-pointer">
                       <FaCalendar size={18} /> Manage Slots
                     </Link>
-                    <Link to="/admin/bookings" className="w-full sm:w-auto px-8 py-4 bg-white/5 hover:bg-white/10 text-white border border-white/10 rounded-2xl font-bold transition-all flex items-center justify-center gap-2 backdrop-blur-sm">
+                    <Link to="/admin/bookings" className="w-full sm:w-auto px-8 py-4 bg-white/5 hover:bg-white/10 text-white border border-white/10 rounded-2xl font-bold transition-all flex items-center justify-center gap-2 backdrop-blur-sm cursor-pointer">
                       <FaClipboardList size={18} /> View Bookings
                     </Link>
                   </>
                 ) : (
                   <>
-                    <Link to="/calendar" className="w-full sm:w-auto px-8 py-4 bg-sky-500 hover:bg-sky-400 text-white rounded-2xl font-bold transition-all duration-300 flex items-center justify-center gap-2 shadow-xl shadow-sky-500/20 ">
+                    <Link to="/calendar" className="w-full sm:w-auto px-8 py-4 bg-sky-500 hover:bg-sky-400 text-white rounded-2xl font-bold transition-all duration-300 flex items-center justify-center gap-2 shadow-xl shadow-sky-500/20 cursor-pointer">
                       <FaCalendar size={18} /> Open Calendar
                     </Link>
-                    <Link to="/my" className="w-full sm:w-auto px-8 py-4 bg-white/5 hover:bg-white/10 text-white border border-white/10 rounded-2xl font-bold transition-all flex items-center justify-center gap-2 backdrop-blur-sm">
+                    <Link to="/my" className="w-full sm:w-auto px-8 py-4 bg-white/5 hover:bg-white/10 text-white border border-white/10 rounded-2xl font-bold transition-all flex items-center justify-center gap-2 backdrop-blur-sm cursor-pointer">
                       <FaClipboardList size={18} /> My Appointments
                     </Link>
                   </>
@@ -53,10 +53,10 @@ export function HomePage() {
               </>
             ) : (
               <>
-                <Link to="/register" className="group w-full sm:w-auto px-8 py-4 bg-white text-black hover:bg-sky-50 rounded-2xl font-bold transition-all duration-300 flex items-center justify-center gap-2 ">
+                <Link to="/register" className="group w-full sm:w-auto px-8 py-4 bg-white text-black hover:bg-sky-50 rounded-2xl font-bold transition-all duration-300 flex items-center justify-center gap-2 cursor-pointer">
                   Get Started <FaArrowRight className="group-hover:translate-x-1 transition-transform" />
                 </Link>
-                <Link to="/login" className="w-full sm:w-auto px-8 py-4 bg-transparent hover:bg-white/5 text-gray-300 rounded-2xl font-bold transition-all border border-white/10 flex items-center justify-center gap-2">
+                <Link to="/login" className="w-full sm:w-auto px-8 py-4 bg-transparent hover:bg-white/5 text-gray-300 rounded-2xl font-bold transition-all border border-white/10 flex items-center justify-center gap-2 cursor-pointer">
                   <FaSignInAlt /> Sign In
                 </Link>
               </>
@@ -67,7 +67,7 @@ export function HomePage() {
         {/* Right Side: Features Card Stack */}
         <div className="flex-1 w-full flex flex-col gap-4 relative">
             {/* Feature 1 */}
-            <div className="group p-6 rounded-3xl bg-white/[0.03] border border-white/10 hover:border-sky-500/50 transition-all duration-500 hover:scale-[1.02]">
+            <div className="group p-6 rounded-3xl bg-white/[0.03] border border-white/10 hover:border-sky-500/50 transition-all duration-500 hover:scale-[1.02] cursor-default">
               <div className="flex items-center gap-4">
                 <div className="shrink-0 w-12 h-12 rounded-xl bg-sky-500/10 flex items-center justify-center text-sky-400 group-hover:bg-sky-500 group-hover:text-white transition-colors">
                   <FaBolt size={20} />
@@ -80,7 +80,7 @@ export function HomePage() {
             </div>
 
             {/* Feature 2 */}
-            <div className="group p-6 rounded-3xl bg-white/[0.03] border border-white/10 hover:border-emerald-500/50 transition-all duration-500 hover:scale-[1.02] lg:ml-8">
+            <div className="group p-6 rounded-3xl bg-white/[0.03] border border-white/10 hover:border-emerald-500/50 transition-all duration-500 hover:scale-[1.02] lg:ml-8 cursor-default">
               <div className="flex items-center gap-4">
                 <div className="shrink-0 w-12 h-12 rounded-xl bg-emerald-500/10 flex items-center justify-center text-emerald-400 group-hover:bg-emerald-500 group-hover:text-white transition-colors">
                   <FaShieldAlt size={20} />

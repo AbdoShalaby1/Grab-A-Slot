@@ -10,23 +10,28 @@ import "./BookingCalendar.css";
 
 function slotToEvent(s: TimeSlotListItem): EventInput {
   let title = "Unavailable";
+  let statusBadge = "⊘";
   let color = "#6b7280";
   if (!s.isActive) {
     title = "Inactive";
+    statusBadge = "⊗";
     color = "#4b5563";
   } else if (s.bookedByMe) {
-    title = "Your booking";
+    title = "Your Booking";
+    statusBadge = "✓";
     color = "#2563eb";
   } else if (s.available) {
     title = "Available";
+    statusBadge = "✕";
     color = "#059669";
   } else {
     title = "Booked";
+    statusBadge = "✗";
     color = "#9ca3af";
   }
   return {
     id: `slot-${s.id}`,
-    title,
+    title: `${statusBadge} ${title}`,
     start: s.startAt,
     end: s.endAt,
     backgroundColor: color,
