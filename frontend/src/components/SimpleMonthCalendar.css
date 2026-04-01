@@ -250,20 +250,42 @@
   align-items: center;
   justify-content: center;
   min-height: 70px;
+  gap: 0.35rem;
 }
 
 .time-range {
   white-space: nowrap;
   text-align: center;
+  word-break: break-word;
 }
 
 .status-text {
   font-size: 0.75rem;
-  margin-top: 0.5rem;
   font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 0.5px;
   opacity: 0.9;
+}
+
+/* Mobile Responsive */
+@media (max-width: 640px) {
+  .slot-button {
+    padding: 0.75rem 0.5rem;
+    min-height: 60px;
+    font-size: 0.8rem;
+    gap: 0.25rem;
+  }
+
+  .time-range {
+    white-space: normal;
+    font-size: 0.85rem;
+  }
+
+  .status-text {
+    font-size: 0.65rem;
+    margin-top: 0.25rem;
+    letter-spacing: 0.3px;
+  }
 }
 
 /* Available Slot */
