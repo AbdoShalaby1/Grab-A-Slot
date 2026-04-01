@@ -1,22 +1,25 @@
 FROM node:20-slim
 
-# Install OpenSSL and CA certificates (Prisma needs these for WASM/engines)
+# Install OpenSSL and CA certificates
 RUN apt-get update -y && apt-get install -y openssl ca-certificates
 
 WORKDIR /app
 
 COPY package*.json ./
 
-# Install dependencies - we use --unsafe-perm if there are permission issues with postinstall
+# Install all dependencies (including devDeps like typescript)
 RUN npm install
 
-# Copy prisma schema before generating
+# Copy prisma schema and generate client
 COPY prisma ./prisma/
-
-# FORCE the generation of the client for the current OS
 RUN npx prisma generate
 
+# Copy the rest of the source code
 COPY . .
+
+# --- MISSING STEP: BUILD THE PROJECT ---
+# This creates the 'dist' folder that your CMD is looking for
+RUN npm run build
 
 # Set production environment
 ENV NODE_ENV=production
@@ -24,4 +27,5 @@ ENV PORT=4000
 EXPOSE 4000
 
 # Clean start
-CMD npx prisma migrate deploy && node index.js
+# Using 'sh -c' helps ensure both commands run in sequence properly
+CMD sh -c "npx prisma migrate deploy && node dist/index.js"
